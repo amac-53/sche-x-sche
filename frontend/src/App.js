@@ -37,29 +37,10 @@ function App() {
         <div id = "overlay"></div>
       </div>
 
-      <div id="overlay">
-        <div id="contents">
-        <p>これがモーダルウィンドウです。</p>
-        <p><button>close</button></p>
-      </div>
+     
 </div>
-    </div>
   );
 }
 
-function Modal() {
-  if (true) {
-    return (
-      <div id="overlay">
-        <div id="content">
-          <p>これがモーダルウィンドウです。</p>
-          <button>Close</button>
-        </div>
-      </div >
-    )
-  } else {
-    return null;
-  }
-}
 
 export default App;
