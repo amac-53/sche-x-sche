@@ -2,11 +2,14 @@ import logo from './logo.svg';
 import WeekCalendar from 'react-week-calendar/dist/WeekCalendar'; //react-week-calendar読み込み
 import 'react-week-calendar/dist/style.css'; //react-week-calendarのcss読み込み
 import "./App.css"; //そのほかのcss読み込み
-import React, { useState, useEffect } from "react";
-
+import React,{ useState } from "react";
+import Modal from "./modal.jsx"; //Modalコンポーネントをimport(?)
 
 function App() {
-  const [show, setShow] = useState(false)
+  const [showModal, setShowModal] = useState(false); //Modalコンポーネントの表示の状態を定義
+  const ShowModal = () => {
+    setShowModal(true);
+  };
   return (
     <div className="App">
       <h1>予定合わせる君</h1>
@@ -33,14 +36,13 @@ function App() {
       scaleUnit="30"
       />
       <div>
-        <submit><button>確認</button></submit>
-        <div id = "overlay"></div>
+        <submit><button onClick={ShowModal}>確認</button></submit>
+        <Modal showFlag={showModal} setShowModal={setShowModal} content="親から渡された値です。" />
       </div>
-
-     
 </div>
   );
 }
+
 
 
 export default App;
