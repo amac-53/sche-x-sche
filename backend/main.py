@@ -34,3 +34,21 @@ async def read_reservations(skip: int = 0, limit: int = 100, db: Session = Depen
     return reservations
 
 
+@app.get("/reservation_check/")
+async def reservation_check(taskname: str, db: Session = Depends(get_db)):
+    """
+    逐一予約状態を確認
+    """
+    reservations_by_task = crud.get_reservation_by_task(db, taskname)
+
+    name_list = []
+    for reservation_by_task in reservations_by_task:
+        name: str = reservation_by_task.username
+        if name not in name_list:
+            name_list.append(name)
+        print(reservation_by_task.username)
+
+    if len(name_list) != reservation_by_task.reservation_num: 
+        return False
+
+    return True

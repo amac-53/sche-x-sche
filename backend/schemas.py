@@ -6,6 +6,7 @@ import datetime
 class ReservationBase(BaseModel):
     username: str
     taskname: str
+    reservation_num: int
     start_date_time: datetime.datetime
     end_date_time: datetime.datetime
 
@@ -15,12 +16,3 @@ class CreateReservation(ReservationBase):
 class Reservation(ReservationBase):
     class Config:
         orm_mode = True
-
-# class UserBase(BaseModel):    
-#     username: str
-
-# class UserCreate(UserBase):
-#     pass
-
-# class User(UserBase):
-#     id: int
