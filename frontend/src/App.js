@@ -2,6 +2,9 @@ import WeekCalendar from 'react-week-calendar/dist/WeekCalendar'; //react-week-c
 import 'react-week-calendar/dist/style.css'; //react-week-calendarのcss読み込み
 import "./App.css"; //そのほかのcss読み込み
 
+import {BrowserRouter, Routes, Route} from "react-router-dom";
+import finish_person from './finish_person';
+
 const events = [
   {
     id: 1,
@@ -21,23 +24,28 @@ function App() {
   return (
     <div className="App">
       <h1>予定合わせる君</h1>
+      <BrowserRouter>
+        <Routes>
+          <Route path={`/`} element={finish_person} />
+        </Routes>
+      </BrowserRouter>
 
       <div class="name_input">
         <label for="name">名前<span class="must">*</span>:</label>
         <input type="text" id="name" name="name" required
-        minlength="4" maxlength="8" size="10"></input>
+        minlength="4" size="10"></input>
       </div>
 
       <div class="team_name_input">
         <label for="name">チーム名<span class="must">*</span>:</label>
         <input type="text" id="name" name="name" required
-        minlength="4" maxlength="8" size="10"></input>
+        minlength="4" size="10"></input>
       </div>
 
       <div class="person_input">
         <label for="name">チームの人数(数字のみ)<span class="must">*</span>:</label>
         <input type="text" id="name" name="name" required
-        minlength="4" maxlength="8" size="5"></input>
+        minlength="4" size="5"></input>
       </div>
 
       <WeekCalendar
