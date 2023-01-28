@@ -2,7 +2,7 @@ import WeekCalendar from 'react-week-calendar/dist/WeekCalendar'; //react-week-c
 import 'react-week-calendar/dist/style.css'; //react-week-calendarのcss読み込み
 import "./App.css"; //そのほかのcss読み込み
 
-const Events = [
+const events = [
   {
     id: 1,
     title: 'Event 1',
@@ -42,7 +42,7 @@ function App() {
 
       <WeekCalendar
       scaleUnit="30"
-      events = {Events}
+      events = {events}
       />
       <div>
         <submit><button>確認</button></submit>
