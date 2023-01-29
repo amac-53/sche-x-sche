@@ -1,3 +1,17 @@
+h1 {
+  color: rgb(14, 146, 146);
+}
+
+label {
+  text-align: center;
+  font-size: large;
+}
+
+.must {
+  color: red;
+}
+
+
 .App {
   text-align: center;
 }
