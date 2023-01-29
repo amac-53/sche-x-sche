@@ -5,7 +5,8 @@ import finish_person from './finish_person';
 import { Calendar, momentLocalizer, Views } from 'react-big-calendar'
 import moment from 'moment'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
-import axois from 'axios'
+import axios from 'axios'
+import useSWR from 'swr';
 
 const localizer = momentLocalizer(moment)
 
@@ -17,42 +18,96 @@ const formats = {
   dayRangeHeaderFormat: 'YYYY年M月',
 }
 
-
-const eventList = [
-  {
-    id: 0,
-    title: 'All Day Event very long title',
-    allDay: false,
-    start: new Date('2020-03-01 9:00'),
-    end: new Date('2020-03-01 13:00'),
-  },
-  {
-    id: 1,
-    title: 'Long Event',
-    allDay: false,
-    start: new Date('2023-01-29 15:00'),
-    end: new Date('2023-1-29 17:00'),
-  }
-];
-
 function App() {
 
   const [user_name, setUser] = useState('');
-  const [task_name, setTask] = useState('');
+  const [task_name, setTask] = useState('hello');
   const [n_team, setNumber] = useState('');
   const [date, setDate] = useState('');
   const [start, setStart] = useState('');
   const [end, setEnd] = useState('');
+  const [eventList, setEventlist] = useState([{
+    id: 0,
+    title: 'Long Event',
+    allDay: false,
+    start: new Date('2023-01-29 15:00'),
+    end: new Date('2023-1-29 17:00'),
+  }]);
+  const [flag, setFlag] = useState('false');
+  const [result, setResult] = useState({});
+  const cnt = 0;
+
+  // 定期的に中身を見に行く関数
+  const getReservation = (path) => {
+    axios.get("http://localhost:8000/" + path + "/?taskname=" + task_name)
+      .then((res) => {
+        console.log(res);
+        setResult(res.data);
+        setFlag('true');
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        // イベント追加
+        console.log(flag)
+        if (flag === 'true') {
+          const event = {
+            id: cnt,
+            title: task_name,
+            allDay: false,
+            start: new Date(result[0].start_date_time),
+            end: new Date(result[0].end_date_time),
+          }
+          console.log(event)
+          setEventlist([...eventList, event])
+          console.log(eventList);
+        }
+      }
+      )
+  }
+
+  useSWR('reservation_check', getReservation, {
+    refreshInterval: flag == 'false' ? 3000 : 0,
+  })
+
 
   // データを送信
   const sendData = () => {
-    // const data = {}
-    // axios.post("http://localhost:8000/reservations?")
+
+    // 送信するデータ
+    const data = {
+      'username': user_name,
+      'taskname': task_name,
+      'reservation_num': n_team,
+      'start_date_time': date + 'T' + start,
+      'end_date_time': date + 'T' + end,
+    }
+
+    // 予約データを投げる
+    axios.post("http://localhost:8000/reservation/", data)
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+
+    // デバッグ用
+    // 全てのデータ取得
+    axios.get("http://localhost:8000/reservations/")
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+
   }
-  
+
   return (
     <div className="App">
-      <h1>予定合わせる君</h1>
+      <h1>sche x sche</h1>
       <BrowserRouter>
         <Routes>
           <Route path={`/`} element={finish_person} />
@@ -62,7 +117,7 @@ function App() {
       <div className="n_team">
         <label htmlFor="user_name">名前<span className="must">*</span>:</label>
         <input id="user_name" value={user_name} onChange={(e) => setUser(e.target.value)}
-         required />
+          required />
       </div>
 
       <div className="n_team">

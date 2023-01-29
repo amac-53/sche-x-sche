@@ -1,5 +1,6 @@
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
+from fastapi.middleware.cors import CORSMiddleware
 
 import crud, models, schemas
 from database import SessionLocal, engine
@@ -8,6 +9,18 @@ import calculate_reservation
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+origins = [
+    "*",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Dependency
 def get_db():
@@ -38,9 +51,9 @@ async def read_reservations(skip: int = 0, limit: int = 100, db: Session = Depen
 @app.get("/reservation_check/")
 async def reservation_check(taskname: str, db: Session = Depends(get_db)):
     """
-    予約状態を確認し，予定が合えばその開始，終了時刻を返す
-    もしなければ，nullを返す
-    メンバー全員が返信をしていなければ，falseを返す
+    予約状態を確認し，予定が合えばその開始・終了時刻を返す．
+    もしなければ，nullを返す．
+    メンバー全員が返信をしていなければ，falseを返す．
     """
     reservations_by_task = crud.get_reservation_by_task(db, taskname)
 
