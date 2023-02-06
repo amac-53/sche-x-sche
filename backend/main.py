@@ -57,6 +57,10 @@ async def reservation_check(taskname: str, db: Session = Depends(get_db)):
     """
     reservations_by_task = crud.get_reservation_by_task(db, taskname)
 
+    # 最初は常に false
+    if reservations_by_task == []:
+        return False
+
     name_list = []
     for reservation_by_task in reservations_by_task:
         name: str = reservation_by_task.username
