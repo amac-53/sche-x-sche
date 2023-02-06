@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  frontend:
+    container_name: "sche-sche-front"
+    build: ./frontend
+    volumes:
+      - ./frontend:/frontend
+      - node_modules_volume:/frontend/node_modules
+    ports:
+      - 3000:3000
+    tty: true
+
+  backend:
+    container_name: "sche-sche-back"
+    build: ./backend
+    volumes:
+      - ./backend:/backend
+    ports:
+      - 8080:8080
+    tty: true
+
+volumes:
+  node_modules_volume:
