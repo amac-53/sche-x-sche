@@ -1,12 +1,24 @@
-import "./App.css";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import finish_person from './finish_person';
+import useSWR from 'swr';
+
+// third party
 import { Calendar, momentLocalizer, Views } from 'react-big-calendar'
 import moment from 'moment'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import axios from 'axios'
-import useSWR from 'swr';
+
+// components
+import AppHeader from "./components/AppHeader";
+import AppFooter from "./components/AppFooter";
+import UserForms from "./components/UserForms";
+import SendBotton from "./components/SendBotton";
+
+// css
+import Container from "react-bootstrap/esm/Container";
+import Row from "react-bootstrap/esm/Row";
+import Col from "react-bootstrap/esm/Col";
+
 
 const localizer = momentLocalizer(moment)
 
@@ -20,71 +32,56 @@ const formats = {
 
 function App() {
 
-  const [user_name, setUser] = useState('');
-  const [task_name, setTask] = useState('hello');
-  const [n_team, setNumber] = useState('');
-  const [date, setDate] = useState('');
-  const [start, setStart] = useState('');
-  const [end, setEnd] = useState('');
-  const [eventList, setEventlist] = useState([{
-    id: 0,
-    title: 'Long Event',
-    allDay: false,
-    start: new Date('2023-01-29 15:00'),
-    end: new Date('2023-1-29 17:00'),
-  }]);
-  const [flag, setFlag] = useState('false');
-  const [result, setResult] = useState({});
-  const cnt = 0;
+  // one schedule
+  const [schedule, setSchedule] = useState({
+    user_name: '',
+    task_name: 'チーム札幌',
+    n_team: '',
+    date: '',
+    start_time: '',
+    end_time: '',
+  });
 
-  // 定期的に中身を見に行く関数
-  const getReservation = (path) => {
-    axios.get("http://localhost:8080/" + path + "/?taskname=" + task_name)
-      .then((res) => {
-        console.log(res);
-        setResult(res.data);
-        setFlag('true');
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => {
-        // イベント追加
-        console.log(flag)
-        if (flag === 'true') {
-          const event = {
-            id: cnt,
-            title: task_name,
-            allDay: false,
-            start: new Date(result[0].start_date_time),
-            end: new Date(result[0].end_date_time),
-          }
-          console.log(event)
-          setEventlist([...eventList, event])
-          console.log(eventList);
-        }
+  // events
+  const [events, setEvents] = useState([
+    {
+      id: '',
+      title: '',
+      allDay: false,
+      start: '',
+      end: '',
+    }
+  ]);
+  const [flag, setFlag] = useState('false');
+  let id = 0;
+
+  // when press the button, check if every form is not empty
+  const checkInput = () => {
+    for (const item in schedule) {
+      if (schedule[item] === '') {
+        alert(`${item}を入力してください`)
+        return false;
+      } else {
+        alert(`確定してよろしいですか？`)
+        // バックエンドにデータ送信
+        sendData();
+        return true;
       }
-      )
+    }
   }
 
-  useSWR('reservation_check', getReservation, {
-    refreshInterval: flag == 'false' ? 3000 : 0,
-  })
 
-
-  // データを送信
+  // send data to backend
   const sendData = () => {
-
-    // 送信するデータ
+    // data replcaed for backend to use
     const data = {
-      'username': user_name,
-      'taskname': task_name,
-      'reservation_num': n_team,
-      'start_date_time': date + 'T' + start,
-      'end_date_time': date + 'T' + end,
+      'username': schedule.user_name,
+      'taskname': schedule.task_name,
+      'reservation_num': schedule.n_team,
+      'start_date_time': schedule.date + 'T' + schedule.start_time,
+      'end_date_time': schedule.date + 'T' + schedule.end_time,
     }
-
-    // 予約データを投げる
+    // really send the data
     axios.post("http://localhost:8080/reservation/", data)
       .then((res) => {
         console.log(res);
@@ -92,9 +89,8 @@ function App() {
       .catch((err) => {
         console.log(err);
       })
-
-    // デバッグ用
-    // 全てのデータ取得
+    // for debug
+    // get every data
     axios.get("http://localhost:8080/reservations/")
       .then((res) => {
         console.log(res);
@@ -102,65 +98,94 @@ function App() {
       .catch((err) => {
         console.log(err);
       })
-
   }
+
+  // polling function
+  const getReservation = (path) => {
+
+    console.log(schedule.task_name);
+
+    axios.get("http://localhost:8080/" + path + "/?taskname=" + schedule.task_name)
+      .then((res) => {
+        console.log(res.data[0]);
+        if (res.data != 'false') {
+          // add id
+          id++;
+
+          // set event
+          const event = {
+            id: id,
+            title: schedule.task_name,
+            allDay: false,
+            start: new Date(res.data[0].start_date_time),
+            end: new Date(res.data[0].end_date_time),
+          }
+          console.log(event)
+
+          // add events
+          setEvents((prev) => ([...prev, event]));
+          console.log(events)
+
+          // notification
+          alert("予定が決定しました")
+
+          // set flat to true
+          setFlag('true');
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+  }
+
+  // polling
+  useSWR('reservation_check', getReservation, {
+    refreshInterval: flag == 'false' ? 3000 : 0,
+  })
+
+
+  // for debug
+  useEffect(() => {
+    console.log(schedule);
+  }, [schedule])
+
 
   return (
     <div className="App">
-      <h1>sche x sche</h1>
-      <BrowserRouter>
-        <Routes>
-          <Route path={`/`} element={finish_person} />
-        </Routes>
-      </BrowserRouter>
 
-      <div className="n_team">
-        <label htmlFor="user_name">名前<span className="must">*</span>:</label>
-        <input id="user_name" value={user_name} onChange={(e) => setUser(e.target.value)}
-          required />
-      </div>
+      {/* header */}
+      <AppHeader />
 
-      <div className="n_team">
-        <label htmlFor="task_name">タスク名<span className="must">*</span>:</label>
-        <input id="task_name" value={task_name} onChange={(e) => setTask(e.target.value)} required />
-      </div>
+      {/* user input */}
+      <UserForms
+        setSchedule={setSchedule}
+      />
 
-      <div className="n_team">
-        <label htmlFor="n_team">チームの人数(数字のみ)<span className="must">*</span>:</label>
-        <input type="text" id="n_team" value={n_team} onChange={(e) => setNumber(e.target.value)} required />
-      </div>
+      {/* button */}
+      <SendBotton
+        checkInput={checkInput}
+      />
 
-      <div className="person_input">
-        <label htmlFor="date">日付</label>
-        <input type="date" id="date" value={date} onChange={(e) => setDate(e.target.value)} required />
-      </div>
+      {/* calernder */}
+      <Container fluid className="mb-5 pb-5">
+        <Row>
+          <Col>
+            <Calendar
+              localizer={localizer}
+              events={events}
+              timeslots={2}
+              defaultView={Views.WEEK}
+              onSelectEvent={event => alert(event.title)}
+              views={['month', 'week', 'day']}
+              formats={formats}
+              style={{ height: 600 }}
+            />
+          </Col>
+        </Row>
+      </Container>
 
-      <div className="person_input">
-        <label htmlFor="start-time">開始時刻</label>
-        <input type="time" id="start-time" value={start} onChange={(e) => setStart(e.target.value)} required />
-      </div>
-
-      <div className="person_input">
-        <label htmlFor="end-time">終了時刻</label>
-        <input type="time" id="end-time" value={end} onChange={(e) => setEnd(e.target.value)} required />
-      </div>
-
-      {
-        <Calendar
-          localizer={localizer}
-          events={eventList}
-          timeslots={2}
-          defaultView={Views.WEEK}
-          onSelectEvent={event => alert(event.title)}
-          views={['month', 'week', 'day']}
-          formats={formats}
-          style={{ height: 500 }}
-        />
-      }
-
-      <div>
-        <button type="submit" onClick={sendData}>確認</button>
-      </div>
+      {/* footer */}
+      <AppFooter />
     </div>
   );
 }
