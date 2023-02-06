@@ -39,7 +39,7 @@ function App() {
 
   // 定期的に中身を見に行く関数
   const getReservation = (path) => {
-    axios.get("http://localhost:8000/" + path + "/?taskname=" + task_name)
+    axios.get("http://localhost:8080/" + path + "/?taskname=" + task_name)
       .then((res) => {
         console.log(res);
         setResult(res.data);
@@ -85,7 +85,7 @@ function App() {
     }
 
     // 予約データを投げる
-    axios.post("http://localhost:8000/reservation/", data)
+    axios.post("http://localhost:8080/reservation/", data)
       .then((res) => {
         console.log(res);
       })
@@ -95,7 +95,7 @@ function App() {
 
     // デバッグ用
     // 全てのデータ取得
-    axios.get("http://localhost:8000/reservations/")
+    axios.get("http://localhost:8080/reservations/")
       .then((res) => {
         console.log(res);
       })
