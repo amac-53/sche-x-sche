@@ -13,6 +13,9 @@
 - フロント「React」
 - バックエンド「fastAPI + SQLite」
 
+# 実行
+1. このリポジトリ（mainブランチ）を clone 後，`docker compose up -d` で起動
+2. `localhost:3000` にアクセス
 ## 全体像
 こんな感じです．
 ![](./img/schexsche1.png)
